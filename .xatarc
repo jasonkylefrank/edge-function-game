@@ -1,0 +1,7 @@
+{
+  "databaseURL": "https://Jason-K-Frank-s-workspace-ul7brh.us-east-1.xata.sh/db/xata-worker-game",
+  "codegen": {
+    "output": "xata.ts",
+    "workersBuildId": ""
+  }
+}
