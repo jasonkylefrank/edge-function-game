@@ -1,7 +1,9 @@
 export default function XataLogo({
+  style,
   className,
   wingsFill,
 }: {
+  style?: object;
   className?: string;
   wingsFill?: string;
 }) {
@@ -11,6 +13,7 @@ export default function XataLogo({
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 32 32"
       className={className}
+      style={style}
     >
       <g clipPath="url(#a)">
         <path

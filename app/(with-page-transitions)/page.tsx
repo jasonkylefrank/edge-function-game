@@ -17,7 +17,10 @@ export default function Home() {
           function.  Hopefully the difference is pretty small!            
           `}
       </p>
-      <XataGame />
+      {/* NOTE: Don't apply the sizing classes directly to the XataGame component since they won't override the component's size classes in the production build */}
+      <div className="h-[392px] sm:h-[520px]">
+        <XataGame />
+      </div>
     </div>
   );
 }

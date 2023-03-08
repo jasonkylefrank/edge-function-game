@@ -1,12 +1,15 @@
 import AppBar from "components/app-bar/app-bar";
 
-export default function RootLayout({
+export default function RegularPagesLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <>
+    <div
+      className="grid h-full grid-rows-[auto_1fr_auto] justify-items-center
+                     selection:bg-[#08eeb2] selection:text-black"
+    >
       <AppBar />
 
       <main
@@ -35,6 +38,6 @@ export default function RootLayout({
           with Next.js, Tailwind.css, Framer Motion and Vercel
         </p>
       </footer>
-    </>
+    </div>
   );
 }

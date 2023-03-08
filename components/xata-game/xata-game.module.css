@@ -1,5 +1,6 @@
 /* I'm using a CSS file in this case because grid-template-areas don't seem to be easy with Tailwind utility classes currently */
 .root {
+  height: 100%;
   display: grid;
   grid-template-columns: auto 1fr auto;
   place-items: stretch;
@@ -7,6 +8,8 @@
     "topLeft     topCenter     topRight"
     "middleLeft  middleCenter  middleRight"
     "bottomLeft  bottomCenter  bottomRight";
+
+  grid-template-rows: auto 1fr auto;
 }
 .root > * {
   margin: 4px;
@@ -32,4 +35,6 @@
 
 .gameBoard {
   grid-area: middleCenter;
+  height: auto;
+  overflow: hidden;
 }
