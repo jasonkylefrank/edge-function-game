@@ -1,5 +1,6 @@
 "use client";
 
+import React, { useEffect, useRef, useState } from "react";
 import { xataWorker } from "xata";
 import cn from "classnames";
 import ChevronLeftGlyph from "components/icon-glyphs/chevron_left-glyph";
@@ -28,21 +29,50 @@ const moveViaXataWorker = xataWorker(
   }
 );
 
-export default function XataGame() {
+export default function XataGame({ className }: { className?: string }) {
+  const [logoTranslateY, setLogoTranslateY] = useState<number>(0);
+  const gameBoardRef = useRef<HTMLElement>();
+  const gameBoardResizeOberserverRef = useRef<ResizeObserver>();
+
+  function handleGameBoardResize(entries: any) {
+    for (const entry of entries) {
+      console.log(entry);
+    }
+  }
+
+  useEffect(() => {
+    gameBoardResizeOberserverRef.current = new ResizeObserver(
+      handleGameBoardResize
+    );
+    gameBoardResizeOberserverRef.current.observe(
+      gameBoardRef.current as HTMLElement
+    );
+
+    const board = gameBoardRef.current;
+    console.log({
+      width: board?.offsetWidth,
+      height: board?.offsetHeight,
+    });
+  }, []);
+
   const iconButtonHoverElementClassNameProp = {
     hoverElementClassName:
       "rounded-lg top-0 bottom-0 left-0 right-0 scale-75 group-hover:opacity-10",
   };
 
   async function handleArrowClick(direction: MoveDirection) {
-    // TODO: affect a "local change"
+    switch (direction) {
+      case MoveDirection.Up:
+        setLogoTranslateY((prev) => prev - 10);
+        break;
+    }
 
     const xataWorkerResult = await moveViaXataWorker(direction);
     console.log(xataWorkerResult);
   }
 
   return (
-    <section className={styles.root}>
+    <section className={cn(styles.root, className)}>
       <IconButton
         className={styles.upArrow}
         onClick={() => handleArrowClick(MoveDirection.Up)}
@@ -60,13 +90,22 @@ export default function XataGame() {
       </IconButton>
 
       <span
+        ref={gameBoardRef}
         className={cn(
           styles.gameBoard,
-          "relative h-72 justify-self-stretch rounded-lg bg-gray-800 text-white"
+          "relative rounded-lg bg-gray-800 text-white"
         )}
       >
-        <span className="absolute top-[calc(50%-24px)] left-[calc(50%-24px)]">
-          <CompanyLogo className="h-[40px]" wingsFill="#bbbbbb" />
+        <span
+          className="absolute 
+                        top-[calc(50%-16px)] left-[calc(50%-16px)]  
+                        sm:top-[calc(50%-24px)] sm:left-[calc(50%-24px)]"
+        >
+          <CompanyLogo
+            style={{ transform: `translateY(${logoTranslateY}px)` }}
+            className="h-[32px] sm:h-[40px]"
+            wingsFill="#bbbbbb"
+          />
         </span>
       </span>
 
@@ -77,7 +116,6 @@ export default function XataGame() {
       >
         <ChevronRightGlyph />
       </IconButton>
-      {/* </div> */}
 
       <IconButton
         className={styles.downArrow}

@@ -38,13 +38,10 @@ export default function RootLayout({
   return (
     <html lang="en" className={cn(poppins.className, "h-full")}>
       <head />
-      {/* This particular grid-rows (grid-template-rows in CSS) settings allows the middle row to take up all remainging space */}
-      <body
-        className="grid h-full grid-rows-[auto_1fr_auto] justify-items-center 
-                 selection:bg-[#08eeb2] selection:text-black"
-      >
+
+      <body className="h-full">
         {/* Notes:
-                (1) The childre may also be wrapped by nested layout file(s). 
+                (1) The children may also be wrapped by nested layout file(s). 
                 (2) The children are also wrapped by my `template.tsx` (if present at some level).  See: https://beta.nextjs.org/docs/routing/pages-and-layouts#templates 
                     That file can be useful for applying page transitions, etc.
           */}

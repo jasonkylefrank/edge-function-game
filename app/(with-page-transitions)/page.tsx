@@ -17,7 +17,7 @@ export default function Home() {
           function.  Hopefully the difference is pretty small!            
           `}
       </p>
-      <XataGame />
+      <XataGame className="h-[392px] sm:h-[520px]" />
     </div>
   );
 }

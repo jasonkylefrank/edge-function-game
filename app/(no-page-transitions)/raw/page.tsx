@@ -6,9 +6,5 @@ export const metadata = {
 };
 
 export default function Raw() {
-  return (
-    <div className="w-full">
-      <XataGame />
-    </div>
-  );
+  return <XataGame />;
 }
