@@ -120,8 +120,8 @@ export default function XataGame({ className }: { className?: string }) {
     }
 
     // TODO:  Xata worker aspect
-    // const xataWorkerResult = await moveViaXataWorker(direction);
-    // console.log(xataWorkerResult);
+    //const xataWorkerResult = await moveViaXataWorker(direction);
+    //console.log(xataWorkerResult);
   }
   const gameBoardColorClassNames = hasExited ? "bg-green-600" : "bg-gray-800";
 
