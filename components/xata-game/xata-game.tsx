@@ -76,7 +76,7 @@ export default function XataGame({ className }: { className?: string }) {
 
   const iconButtonHoverElementClassNameProp = {
     hoverElementClassName:
-      "rounded-lg top-0 bottom-0 left-0 right-0 scale-75 group-hover:opacity-10",
+      "!rounded-lg !top-0 !bottom-0 !left-0 !right-0 scale-75 !group-hover:opacity-10",
   };
 
   function updatePosition() {
