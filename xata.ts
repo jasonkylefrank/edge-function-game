@@ -37,5 +37,5 @@ export const getXataClient = () => {
 
 export const xataWorker = buildWorkerRunner<XataClient>({
   workspace: "Jason-K-Frank-s-workspace-ul7brh",
-  worker: "cg545mrtbhkmciakk1vg",
+  worker: "cg54q7btbhkmciakk20g",
 });
