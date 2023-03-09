@@ -16,13 +16,16 @@ const poppins = Poppins({
   display: "swap",
 });
 
+const mainTitle = "Edge functions game by Jason Frank";
+
 export const metadata = {
   title: {
-    default: "Xata Worker game by Jason Frank",
-    template: "%s • Xata game by Jason Frank", // Allows us to create a composite title based on title from nested pages
+    default: mainTitle,
+    template: `%s • ${mainTitle}`, // Allows us to create a composite title based on title from nested pages
   },
-  description:
-    "An experiment to test-out the new Xata workers (edge functions)",
+  description: `A game to play around with Serverless and Edge functions, including those offered by Next.js 
+    and Xata.  Next.js's cloud functions get deployed to AWS, while Xata's Edge functions (called Workers) 
+    uses Cloudflair's Worker Edge Functions under the hood.`,
   // Next.js is now putting this viewport meta tag in automatically
   //viewport: "width=device-width, initial-scale=1",
   icons: {

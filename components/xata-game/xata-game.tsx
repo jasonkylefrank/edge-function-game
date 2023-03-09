@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { xataWorker } from "xata";
 import cn from "classnames";
 import ChevronLeftGlyph from "components/icon-glyphs/chevron_left-glyph";
@@ -21,18 +22,31 @@ enum MoveDirection {
 
 const moveViaXataWorker = xataWorker(
   "moveViaXataWorker",
-  async ({ xata }, direction: MoveDirection) => {
+  async ({ xata }, newTranslateVal: number) => {
+    const SIMULATE_DELAY = false;
+    const DELAY_AMOUNT = 350;
     // return await xata.db.Posts.sort("createdAt").getMany({
     //   pagination: { size, offset },
     // });
 
-    return "Hello from Xata worker function.  You clicked: " + direction;
+    console.log(
+      "Hello from Xata Edge worker function.  Value received: " +
+        newTranslateVal
+    );
+    if (SIMULATE_DELAY) {
+      await new Promise((resolve) => setTimeout(resolve, DELAY_AMOUNT));
+    }
+    return newTranslateVal;
   }
 );
 
 export default function XataGame({ className }: { className?: string }) {
   const [logoTranslateY, setLogoTranslateY] = useState<number>(0);
   const [logoTranslateX, setLogoTranslateX] = useState<number>(0);
+  const [xataEdgeTranslateY, setXataEdgeTranslateY] = useState(0);
+  const [xataEdgeTranslateX, setXataEdgeTranslateX] = useState(0);
+  // A counter to help differentiate instances of the logo between renderings since the translateX and translateY values can be landed-upon multiple times (this helps create unique key for animations)
+  const [clickCounter, setClickCounter] = useState(0);
   // Need to pass-in null since this ref is to store a reference to an HTML element (as opposed to an arbitrary variable). Initializing it with null makes the ref's 'current' property readonly and satisfies the TypeScrip compiler.  See: https://stackoverflow.com/a/61680609/718325
   const gameBoardRef = useRef<HTMLElement>(null);
   const gameBoardResizeOberserverRef = useRef<ResizeObserver>();
@@ -71,7 +85,7 @@ export default function XataGame({ className }: { className?: string }) {
   }, []);
 
   useEffect(() => {
-    console.log("New hasExisted: " + hasExited);
+    //console.log("New hasExisted: " + hasExited);
   }, [hasExited]);
 
   const iconButtonHoverElementClassNameProp = {
@@ -79,20 +93,28 @@ export default function XataGame({ className }: { className?: string }) {
       "!rounded-lg !top-0 !bottom-0 !left-0 !right-0 scale-75 !group-hover:opacity-10",
   };
 
-  function updatePosition() {
+  async function updatePosition() {
     if (!gameBoardHeightRef.current || !gameBoardWidthRef.current) {
       return;
     }
     const yPercentTowardExit = currentYStepRef.current / stepsToExit;
     const newTranslateY = yPercentTowardExit * (gameBoardHeightRef.current / 2);
-    setLogoTranslateY(newTranslateY);
 
     const xPercentTowardExit = currentXStepRef.current / stepsToExit;
     const newTranslateX = xPercentTowardExit * (gameBoardWidthRef.current / 2);
+
+    setLogoTranslateY(newTranslateY);
     setLogoTranslateX(newTranslateX);
+
+    // Keep these at the bottom since we're awaiting them (we need to make sure the local moves are not blocked)
+    setXataEdgeTranslateY(await moveViaXataWorker(newTranslateY));
+    setXataEdgeTranslateX(await moveViaXataWorker(newTranslateX));
+    //console.log("Just updated position.");
   }
 
   async function handleArrowClick(direction: MoveDirection) {
+    setClickCounter((prev) => prev + 1);
+
     if (!gameBoardHeightRef.current || !gameBoardWidthRef.current) {
       return;
     }
@@ -118,10 +140,6 @@ export default function XataGame({ className }: { className?: string }) {
     ) {
       setHasExited(true);
     }
-
-    // TODO:  Xata worker aspect
-    //const xataWorkerResult = await moveViaXataWorker(direction);
-    //console.log(xataWorkerResult);
   }
   const gameBoardColorClassNames = hasExited ? "bg-green-600" : "bg-gray-800";
 
@@ -151,17 +169,44 @@ export default function XataGame({ className }: { className?: string }) {
           gameBoardColorClassNames
         )}
       >
+        <AnimatePresence>
+          <motion.span
+            exit={{
+              opacity: [0.15, 0], // Keyframes (also see the corresponding "times" array in the "transition" property)
+              // opacity: 0,
+              // Adding this scale value currently makes the exit animation's x & y position always start from the
+              //  starting-position of the logo. I could try specifying the previous x & y translate values here to see if that solves it
+              //scale: [0.8, 0.2],
+              // x: prevLogoTranslateX,
+              // y: prevLogoTranslateY
+              // x: logoTranslateX,
+              // y: logoTranslateY,
+            }}
+            transition={{ duration: 1.3, times: [0, 1] }}
+            key={`${logoTranslateY}-${logoTranslateX}-${clickCounter}--Local`}
+            className="absolute top-[calc(50%-16px)] left-[calc(50%-16px)]  
+                       sm:top-[calc(50%-24px)] sm:left-[calc(50%-24px)]"
+          >
+            <CompanyLogo
+              style={{
+                transform: `translateY(${logoTranslateY}px) translateX(${logoTranslateX}px) scale(100%)`,
+              }}
+              className="h-[32px] sm:h-[40px]"
+              wingsFill="#ffff3d"
+            />
+          </motion.span>
+        </AnimatePresence>
+
         <span
-          className="absolute 
-                        top-[calc(50%-16px)] left-[calc(50%-16px)]  
-                        sm:top-[calc(50%-24px)] sm:left-[calc(50%-24px)]"
+          className="absolute top-[calc(50%-16px)] left-[calc(50%-16px)]  
+                       translate-x-0 translate-y-0 sm:top-[calc(50%-24px)] sm:left-[calc(50%-24px)]"
         >
           <CompanyLogo
             style={{
-              transform: `translateY(${logoTranslateY}px) translateX(${logoTranslateX}px)`,
+              transform: `translateY(${xataEdgeTranslateY}px) translateX(${xataEdgeTranslateX}px) scale(100%)`,
             }}
-            className="h-[32px] transition duration-75 sm:h-[40px]"
-            wingsFill="#bbbbbb"
+            className="h-[32px]  transition duration-200 sm:h-[40px]"
+            wingsFill="#00d0ff"
           />
         </span>
       </span>
