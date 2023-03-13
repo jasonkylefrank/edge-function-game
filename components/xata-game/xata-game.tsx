@@ -229,8 +229,8 @@ export default function XataGame({ className }: { className?: string }) {
             style={{
               transform: `translateY(${xataEdgeTranslateY}px) translateX(${xataEdgeTranslateX}px) scale(100%)`,
             }}
-            className="h-[32px]  transition duration-200 sm:h-[40px]"
-            // className="h-[32px] sm:h-[40px]"
+            // className="h-[32px]  transition duration-200 sm:h-[40px]"
+            className="h-[32px] sm:h-[40px]"
             wingsFill="#00d0ff"
           />
         </span>
