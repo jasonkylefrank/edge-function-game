@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { xataWorker } from "xata";
 import cn from "classnames";
@@ -58,59 +58,60 @@ export default function XataGame({ className }: { className?: string }) {
   const currentXStepRef = useRef<number>(0);
   const [hasExited, setHasExited] = useState<boolean>(false);
 
-  useEffect(() => {
-    function handleGameBoardResize(
-      resizeObserverEntries: ResizeObserverEntry[]
-    ) {
-      // We only have one entry in our case, so I'm just extracting that one
-      const gameBoardResizeEntry = resizeObserverEntries[0];
-      const { contentRect } = gameBoardResizeEntry;
-      gameBoardWidthRef.current = contentRect.width;
-      gameBoardHeightRef.current = contentRect.height;
-      // Need to update the logo's position here because the previous translate amount was based on the previous board size (this keeps is positioned at the correct percentage toward the exit)
-      updatePosition();
-    }
-    (function setUpBoardResizeObserver() {
-      gameBoardResizeOberserverRef.current = new ResizeObserver(
-        debounce(handleGameBoardResize, 200)
-      );
-      gameBoardResizeOberserverRef.current.observe(
-        gameBoardRef.current as HTMLElement
-      );
-    })();
-
-    const board = gameBoardRef.current;
-    gameBoardWidthRef.current = board?.offsetWidth;
-    gameBoardHeightRef.current = board?.offsetHeight;
-  }, []);
-
-  useEffect(() => {
-    //console.log("New hasExisted: " + hasExited);
-  }, [hasExited]);
-
   const iconButtonHoverElementClassNameProp = {
     hoverElementClassName:
       "!rounded-lg !top-0 !bottom-0 !left-0 !right-0 scale-75 !group-hover:opacity-10",
   };
 
-  async function updatePosition() {
-    if (!gameBoardHeightRef.current || !gameBoardWidthRef.current) {
-      return;
-    }
-    const yPercentTowardExit = currentYStepRef.current / stepsToExit;
-    const newTranslateY = yPercentTowardExit * (gameBoardHeightRef.current / 2);
+  // Need the useCallback here b/c the underlying function is a dependency of a useEffect, so we need a constant reference for the function to avoid unnessary calls to the useEffect
+  const updatePosition = useCallback(
+    async function () {
+      if (!gameBoardHeightRef.current || !gameBoardWidthRef.current) {
+        return;
+      }
+      const yPercentTowardExit = currentYStepRef.current / stepsToExit;
+      const newTranslateY =
+        yPercentTowardExit * (gameBoardHeightRef.current / 2);
 
-    const xPercentTowardExit = currentXStepRef.current / stepsToExit;
-    const newTranslateX = xPercentTowardExit * (gameBoardWidthRef.current / 2);
+      const xPercentTowardExit = currentXStepRef.current / stepsToExit;
+      const newTranslateX =
+        xPercentTowardExit * (gameBoardWidthRef.current / 2);
 
-    setLogoTranslateY(newTranslateY);
-    setLogoTranslateX(newTranslateX);
+      setLogoTranslateY(newTranslateY);
+      setLogoTranslateX(newTranslateX);
 
-    // Keep these at the bottom since we're awaiting them (we need to make sure the local moves are not blocked)
-    setXataEdgeTranslateY(await moveViaXataWorker(newTranslateY));
-    setXataEdgeTranslateX(await moveViaXataWorker(newTranslateX));
-    //console.log("Just updated position.");
-  }
+      // Keep these Xata calls at the bottom since we're awaiting them (we need to make sure the local moves are not blocked)
+      const xataWorkerSentTime = new Date().getTime();
+
+      async function handleXataWorkerCall(value: number, xOrY: "X" | "Y") {
+        const xataVal = await moveViaXataWorker(value);
+
+        const xataWorkerReceivedTime = new Date().getTime();
+
+        console.log(
+          `${xOrY} value sent to Xata (Edge) worker.  Latency: ${
+            xataWorkerSentTime - xataWorkerReceivedTime
+          }ms`
+        );
+        switch (xOrY) {
+          case "X":
+            setXataEdgeTranslateX(xataVal);
+            break;
+          case "Y":
+            setXataEdgeTranslateY(xataVal);
+            break;
+        }
+      }
+      if (xataEdgeTranslateY !== newTranslateY) {
+        handleXataWorkerCall(newTranslateY, "Y");
+      }
+      if (xataEdgeTranslateX !== newTranslateX) {
+        handleXataWorkerCall(newTranslateX, "X");
+      }
+      //console.log("Just updated position.");
+    },
+    [xataEdgeTranslateX, xataEdgeTranslateY]
+  );
 
   async function handleArrowClick(direction: MoveDirection) {
     setClickCounter((prev) => prev + 1);
@@ -141,6 +142,37 @@ export default function XataGame({ className }: { className?: string }) {
       setHasExited(true);
     }
   }
+
+  useEffect(() => {
+    function handleGameBoardResize(
+      resizeObserverEntries: ResizeObserverEntry[]
+    ) {
+      // We only have one entry in our case, so I'm just extracting that one
+      const gameBoardResizeEntry = resizeObserverEntries[0];
+      const { contentRect } = gameBoardResizeEntry;
+      gameBoardWidthRef.current = contentRect.width;
+      gameBoardHeightRef.current = contentRect.height;
+      // Need to update the logo's position here because the previous translate amount was based on the previous board size (this keeps is positioned at the correct percentage toward the exit)
+      updatePosition();
+    }
+    (function setUpBoardResizeObserver() {
+      gameBoardResizeOberserverRef.current = new ResizeObserver(
+        debounce(handleGameBoardResize, 200)
+      );
+      gameBoardResizeOberserverRef.current.observe(
+        gameBoardRef.current as HTMLElement
+      );
+    })();
+
+    const board = gameBoardRef.current;
+    gameBoardWidthRef.current = board?.offsetWidth;
+    gameBoardHeightRef.current = board?.offsetHeight;
+  }, [updatePosition]);
+
+  // useEffect(() => {
+  //   //console.log("New hasExisted: " + hasExited);
+  // }, [hasExited]);
+
   const gameBoardColorClassNames = hasExited ? "bg-green-600" : "bg-gray-800";
 
   return (
@@ -173,14 +205,6 @@ export default function XataGame({ className }: { className?: string }) {
           <motion.span
             exit={{
               opacity: [0.15, 0], // Keyframes (also see the corresponding "times" array in the "transition" property)
-              // opacity: 0,
-              // Adding this scale value currently makes the exit animation's x & y position always start from the
-              //  starting-position of the logo. I could try specifying the previous x & y translate values here to see if that solves it
-              //scale: [0.8, 0.2],
-              // x: prevLogoTranslateX,
-              // y: prevLogoTranslateY
-              // x: logoTranslateX,
-              // y: logoTranslateY,
             }}
             transition={{ duration: 1.3, times: [0, 1] }}
             key={`${logoTranslateY}-${logoTranslateX}-${clickCounter}--Local`}
@@ -206,6 +230,7 @@ export default function XataGame({ className }: { className?: string }) {
               transform: `translateY(${xataEdgeTranslateY}px) translateX(${xataEdgeTranslateX}px) scale(100%)`,
             }}
             className="h-[32px]  transition duration-200 sm:h-[40px]"
+            // className="h-[32px] sm:h-[40px]"
             wingsFill="#00d0ff"
           />
         </span>
