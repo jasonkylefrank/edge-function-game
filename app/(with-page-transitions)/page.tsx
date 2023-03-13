@@ -18,7 +18,7 @@ export default function Home() {
           `}
       </p>
       {/* NOTE: Don't apply the sizing classes directly to the XataGame component since they won't override the component's size classes in the production build */}
-      <div className="h-[392px] sm:h-[520px]">
+      <div className="h-[580px] sm:h-[1080px]">
         <XataGame />
       </div>
     </div>
