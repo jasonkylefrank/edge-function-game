@@ -9,8 +9,8 @@ import ChevronRightGlyph from "components/icon-glyphs/chevron_right-glyph";
 import ExpandLessGlyph from "components/icon-glyphs/expand_less-glyph";
 import ExpandMoreGlyph from "components/icon-glyphs/expand_more-glyph";
 import IconButton from "components/icon/icon-button";
-import CompanyLogo from "../xata-logo";
-import styles from "./xata-game.module.css";
+import GameToken from "components/game-token";
+import styles from "./edge-function-game.module.css";
 import debounce from "lib/debounce";
 
 enum MoveDirection {
@@ -40,7 +40,11 @@ const moveViaXataWorker = xataWorker(
   }
 );
 
-export default function XataGame({ className }: { className?: string }) {
+export default function EdgeFunctionGame({
+  className,
+}: {
+  className?: string;
+}) {
   const [logoTranslateY, setLogoTranslateY] = useState<number>(0);
   const [logoTranslateX, setLogoTranslateX] = useState<number>(0);
   const [xataEdgeTranslateY, setXataEdgeTranslateY] = useState(0);
@@ -174,6 +178,8 @@ export default function XataGame({ className }: { className?: string }) {
   // }, [hasExited]);
 
   const gameBoardColorClassNames = hasExited ? "bg-green-600" : "bg-gray-800";
+  const gameTokenFrameClassNames =
+    "absolute top-[calc(50%-20px)] left-[calc(50%-20px)] sm:top-[calc(50%-24px)] sm:left-[calc(50%-24px)]";
 
   return (
     <section className={cn(styles.root, className)}>
@@ -208,30 +214,23 @@ export default function XataGame({ className }: { className?: string }) {
             }}
             transition={{ duration: 1.3, times: [0, 1] }}
             key={`${logoTranslateY}-${logoTranslateX}-${clickCounter}--Local`}
-            className="absolute top-[calc(50%-16px)] left-[calc(50%-16px)]  
-                       sm:top-[calc(50%-24px)] sm:left-[calc(50%-24px)]"
+            className={gameTokenFrameClassNames}
           >
-            <CompanyLogo
-              style={{
-                transform: `translateY(${logoTranslateY}px) translateX(${logoTranslateX}px) scale(100%)`,
-              }}
-              className="h-[32px] sm:h-[40px]"
-              wingsFill="#ffff3d"
+            {/* The "immediate move" token with paper-trail effect */}
+            <GameToken
+              translateX={logoTranslateX}
+              translateY={logoTranslateY}
+              className="text-[#ffff3d]"
             />
           </motion.span>
         </AnimatePresence>
 
-        <span
-          className="absolute top-[calc(50%-16px)] left-[calc(50%-16px)]  
-                       translate-x-0 translate-y-0 sm:top-[calc(50%-24px)] sm:left-[calc(50%-24px)]"
-        >
-          <CompanyLogo
-            style={{
-              transform: `translateY(${xataEdgeTranslateY}px) translateX(${xataEdgeTranslateX}px) scale(100%)`,
-            }}
-            className="h-[32px]  transition duration-200 sm:h-[40px]"
-            // className="h-[32px] sm:h-[40px]"
-            wingsFill="#00d0ff"
+        <span className={gameTokenFrameClassNames}>
+          {/* The network-moved token. */}
+          <GameToken
+            translateX={xataEdgeTranslateX}
+            translateY={xataEdgeTranslateY}
+            className="text-[#00d0ff] transition duration-200"
           />
         </span>
       </span>

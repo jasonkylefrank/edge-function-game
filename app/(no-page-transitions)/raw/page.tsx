@@ -1,10 +1,10 @@
-import XataGame from "components/xata-game/xata-game";
+import EdgeFunctionGame from "components/xata-game/edge-function-game";
 
 export const metadata = {
   title: `Raw app`,
-  description: `Just the app - useful for embedding in other sights`,
+  description: `Just the app - useful for embedding in other sites`,
 };
 
 export default function Raw() {
-  return <XataGame />;
+  return <EdgeFunctionGame />;
 }

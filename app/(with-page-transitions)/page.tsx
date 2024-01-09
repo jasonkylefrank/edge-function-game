@@ -1,25 +1,33 @@
-import XataGame from "components/xata-game/xata-game";
+import EdgeFunctionGame from "components/xata-game/edge-function-game";
 
 export default function Home() {
   return (
     <div>
-      <h2>{`Xata workers experiment: "Free the butterfly!"`}</h2>
+      <h2>{`Edge function experiment: "Heal the broken heart!"`}</h2>
 
-      <p>{`The Xata butterfly is trapped and needs your help!`}</p>
+      <p>{`Web developer hearts broke when they saw the cold-starts of serverless functions. 😞`}</p>
+
+      <p>{`But alas, edge functions evolved to (hopefully) save the day!`}</p>
+
+      <p>{`Let's test-out the latency of an edge network function and get this heart healed!  Heal the heart by moving it out
+           of the game board one step at a time.`}</p>
       <p>
-        {`She was flying around the internet and got caught between Vercel's edge functions and Xata's new 
-          (edge) worker functions.`}
+        {`With each move, this app will simultenously execute 2 types of moves:`}
       </p>
+      <ol>
+        <li>{`A round-trip edge-network move by calling a function that has been deployed to an edge network.`}</li>
+        <li>{`A "local move" that moves a version of the heart immediately.`}</li>
+      </ol>
+
       <p>
-        {`You can free her by moving her one step at a time.  With each move, a call to either Xata's or Vercel's edge 
-          functions will be made to test-out the latency of these services and move her toward the exit.  You'll be able 
-          to visually see the difference between a “local move” (immediate) and the move that comes back from the edge 
+        {`You'll be able to visually see the difference between the “local move” (immediate) and the move that comes back from the edge 
           function.  Hopefully the difference is pretty small!            
           `}
       </p>
+
       {/* NOTE: Don't apply the sizing classes directly to the XataGame component since they won't override the component's size classes in the production build */}
       <div className="h-[580px] sm:h-[1080px]">
-        <XataGame />
+        <EdgeFunctionGame />
       </div>
     </div>
   );
