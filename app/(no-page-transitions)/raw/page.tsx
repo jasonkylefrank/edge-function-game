@@ -1,4 +1,4 @@
-import EdgeFunctionGame from "components/xata-game/edge-function-game";
+import EdgeFunctionGame from "components/edge-function-game/edge-function-game";
 
 export const metadata = {
   title: `Raw app`,
