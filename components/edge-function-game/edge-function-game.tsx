@@ -100,7 +100,7 @@ export default function EdgeFunctionGame({
 
         console.log(
           `${xOrY} value sent to edge function.  Latency: ${
-            edgeFunctionSentTime - edgeFunctionReceivedTime
+            edgeFunctionReceivedTime - edgeFunctionSentTime
           }ms`
         );
         switch (xOrY) {
