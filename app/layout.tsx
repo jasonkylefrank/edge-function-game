@@ -1,6 +1,6 @@
 import cn from "classnames";
 import "./globals.css";
-import { Poppins } from "@next/font/google";
+import { Poppins } from "next/font/google";
 import AppBar from "components/app-bar/app-bar";
 import AnalyticsWrapper from "components/analytics";
 
