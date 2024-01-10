@@ -2,7 +2,6 @@
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { xataWorker } from "xata";
 import cn from "classnames";
 import ChevronLeftGlyph from "components/icon-glyphs/chevron_left-glyph";
 import ChevronRightGlyph from "components/icon-glyphs/chevron_right-glyph";
@@ -20,45 +19,52 @@ enum MoveDirection {
   Right = "Right",
 }
 
-const moveViaXataWorker = xataWorker(
-  "moveViaXataWorker",
-  async ({ xata }, newTranslateVal: number) => {
-    const SIMULATE_DELAY = false;
-    const DELAY_AMOUNT = 350;
-    // return await xata.db.Posts.sort("createdAt").getMany({
-    //   pagination: { size, offset },
-    // });
+// const moveViaXataWorker = xataWorker(
+//   "moveViaXataWorker",
+//   async ({ xata }, newTranslateVal: number) => {
+//     const SIMULATE_DELAY = false;
+//     const DELAY_AMOUNT = 350;
+//     // console.log(
+//     //   "Hello from Xata Edge worker function.  Value received: " +
+//     //     newTranslateVal
+//     // );
+//     if (SIMULATE_DELAY) {
+//       await new Promise((resolve) => setTimeout(resolve, DELAY_AMOUNT));
+//     }
+//     return newTranslateVal;
+//   }
+// );
 
-    console.log(
-      "Hello from Xata Edge worker function.  Value received: " +
-        newTranslateVal
-    );
-    if (SIMULATE_DELAY) {
-      await new Promise((resolve) => setTimeout(resolve, DELAY_AMOUNT));
-    }
-    return newTranslateVal;
-  }
-);
+const moveViaNextRouteHandler = async (newTranslateVal: number) => {
+  const res = await fetch("/api", {
+    method: "Post",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ newTranslateVal }),
+  });
+  const { newTranslateVal: serverTranslateVal } = await res.json();
+
+  return serverTranslateVal;
+};
 
 export default function EdgeFunctionGame({
   className,
 }: {
   className?: string;
 }) {
-  const [logoTranslateY, setLogoTranslateY] = useState<number>(0);
-  const [logoTranslateX, setLogoTranslateX] = useState<number>(0);
-  const [xataEdgeTranslateY, setXataEdgeTranslateY] = useState(0);
-  const [xataEdgeTranslateX, setXataEdgeTranslateX] = useState(0);
-  // A counter to help differentiate instances of the logo between renderings since the translateX and translateY values can be landed-upon multiple times (this helps create unique key for animations)
+  const [localTranslateY, setLocalTranslateY] = useState<number>(0);
+  const [localTranslateX, setLocalTranslateX] = useState<number>(0);
+  const [edgeFunctionTranslateY, setEdgeFunctionTranslateY] = useState(0);
+  const [edgeFunctionTranslateX, setEdgeFunctionTranslateX] = useState(0);
+  // A counter to help differentiate instances of the game token between renderings since the translateX and translateY values can be landed-upon multiple times (this helps create unique key for animations)
   const [clickCounter, setClickCounter] = useState(0);
   // Need to pass-in null since this ref is to store a reference to an HTML element (as opposed to an arbitrary variable). Initializing it with null makes the ref's 'current' property readonly and satisfies the TypeScrip compiler.  See: https://stackoverflow.com/a/61680609/718325
   const gameBoardRef = useRef<HTMLElement>(null);
   const gameBoardResizeOberserverRef = useRef<ResizeObserver>();
   const gameBoardWidthRef = useRef<number>();
   const gameBoardHeightRef = useRef<number>();
-  // The number of "steps" (generally clicks), in any direction, for the logo to go to exit the board.
+  // The number of "steps" (generally clicks), in any direction, for the game token to go to exit the board.
   const stepsToExit = 10;
-  const currentYStepRef = useRef<number>(0); // The logo will "exit" the board once (abs(currentYStepRef.current) > stepsToExit)
+  const currentYStepRef = useRef<number>(0); // The game token will "exit" the board once (abs(currentYStepRef.current) > stepsToExit)
   const currentXStepRef = useRef<number>(0);
   const [hasExited, setHasExited] = useState<boolean>(false);
 
@@ -81,40 +87,40 @@ export default function EdgeFunctionGame({
       const newTranslateX =
         xPercentTowardExit * (gameBoardWidthRef.current / 2);
 
-      setLogoTranslateY(newTranslateY);
-      setLogoTranslateX(newTranslateX);
+      setLocalTranslateY(newTranslateY);
+      setLocalTranslateX(newTranslateX);
 
-      // Keep these Xata calls at the bottom since we're awaiting them (we need to make sure the local moves are not blocked)
-      const xataWorkerSentTime = new Date().getTime();
+      // Keep the edge function calls at the bottom since we're awaiting them (we need to make sure the local moves are not blocked)
+      const edgeFunctionSentTime = new Date().getTime();
 
-      async function handleXataWorkerCall(value: number, xOrY: "X" | "Y") {
-        const xataVal = await moveViaXataWorker(value);
+      async function handleEdgeFunctionCall(value: number, xOrY: "X" | "Y") {
+        const serverVal = await moveViaNextRouteHandler(value);
 
-        const xataWorkerReceivedTime = new Date().getTime();
+        const edgeFunctionReceivedTime = new Date().getTime();
 
         console.log(
-          `${xOrY} value sent to Xata (Edge) worker.  Latency: ${
-            xataWorkerSentTime - xataWorkerReceivedTime
+          `${xOrY} value sent to edge function.  Latency: ${
+            edgeFunctionSentTime - edgeFunctionReceivedTime
           }ms`
         );
         switch (xOrY) {
           case "X":
-            setXataEdgeTranslateX(xataVal);
+            setEdgeFunctionTranslateX(serverVal);
             break;
           case "Y":
-            setXataEdgeTranslateY(xataVal);
+            setEdgeFunctionTranslateY(serverVal);
             break;
         }
       }
-      if (xataEdgeTranslateY !== newTranslateY) {
-        handleXataWorkerCall(newTranslateY, "Y");
+      if (edgeFunctionTranslateY !== newTranslateY) {
+        handleEdgeFunctionCall(newTranslateY, "Y");
       }
-      if (xataEdgeTranslateX !== newTranslateX) {
-        handleXataWorkerCall(newTranslateX, "X");
+      if (edgeFunctionTranslateX !== newTranslateX) {
+        handleEdgeFunctionCall(newTranslateX, "X");
       }
       //console.log("Just updated position.");
     },
-    [xataEdgeTranslateX, xataEdgeTranslateY]
+    [edgeFunctionTranslateX, edgeFunctionTranslateY]
   );
 
   async function handleArrowClick(direction: MoveDirection) {
@@ -156,7 +162,7 @@ export default function EdgeFunctionGame({
       const { contentRect } = gameBoardResizeEntry;
       gameBoardWidthRef.current = contentRect.width;
       gameBoardHeightRef.current = contentRect.height;
-      // Need to update the logo's position here because the previous translate amount was based on the previous board size (this keeps is positioned at the correct percentage toward the exit)
+      // Need to update the game token's position here because the previous translate amount was based on the previous board size (this keeps is positioned at the correct percentage toward the exit)
       updatePosition();
     }
     (function setUpBoardResizeObserver() {
@@ -172,10 +178,6 @@ export default function EdgeFunctionGame({
     gameBoardWidthRef.current = board?.offsetWidth;
     gameBoardHeightRef.current = board?.offsetHeight;
   }, [updatePosition]);
-
-  // useEffect(() => {
-  //   //console.log("New hasExisted: " + hasExited);
-  // }, [hasExited]);
 
   const gameBoardColorClassNames = hasExited ? "bg-green-600" : "bg-gray-800";
   const gameTokenFrameClassNames =
@@ -213,13 +215,13 @@ export default function EdgeFunctionGame({
               opacity: [0.15, 0], // Keyframes (also see the corresponding "times" array in the "transition" property)
             }}
             transition={{ duration: 1.3, times: [0, 1] }}
-            key={`${logoTranslateY}-${logoTranslateX}-${clickCounter}--Local`}
+            key={`${localTranslateY}-${localTranslateX}-${clickCounter}--Local`}
             className={gameTokenFrameClassNames}
           >
             {/* The "immediate move" token with paper-trail effect */}
             <GameToken
-              translateX={logoTranslateX}
-              translateY={logoTranslateY}
+              translateX={localTranslateX}
+              translateY={localTranslateY}
               className="text-[#ffff3d]"
             />
           </motion.span>
@@ -228,8 +230,8 @@ export default function EdgeFunctionGame({
         <span className={gameTokenFrameClassNames}>
           {/* The network-moved token. */}
           <GameToken
-            translateX={xataEdgeTranslateX}
-            translateY={xataEdgeTranslateY}
+            translateX={edgeFunctionTranslateX}
+            translateY={edgeFunctionTranslateY}
             className="text-[#00d0ff] transition duration-200"
           />
         </span>

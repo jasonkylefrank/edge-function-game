@@ -19,10 +19,6 @@ const nextConfig = {
   reactStrictMode: true,
   // See: https://nextjs.org/docs/advanced-features/using-mdx#setup-nextmdx-in-nextjs
   // pageExtensions: ["js", "ts", "jsx", "tsx", "mdx", "mdx"],
-
-  experimental: {
-    appDir: true,
-  },
 };
 
 // export default withMDX(nextConfig);
