@@ -1,11 +1,11 @@
 {
-  "name": "jasonkylefrank.com",
+  "name": "edge-functions-game",
   "type": "module",
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "concurrently \"next dev\" \"xata workers watch\"",
-    "dev:no-xata-workers": "next dev",
+    "dev": "next dev",
+    "dev:xata-workers": "concurrently \"next dev\" \"xata workers watch\"",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
@@ -28,6 +28,7 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "remark-gfm": "^3.0.1",
+    "sharp": "^0.33.1",
     "typescript": "4.9.4"
   },
   "devDependencies": {

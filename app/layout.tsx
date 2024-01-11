@@ -23,9 +23,10 @@ export const metadata = {
     default: mainTitle,
     template: `%s • ${mainTitle}`, // Allows us to create a composite title based on title from nested pages
   },
-  description: `A game to play around with Serverless and Edge functions, including those offered by Next.js 
-    and Xata.  Next.js's cloud functions get deployed to AWS, while Xata's Edge functions (called Workers) 
-    uses Cloudflair's Worker Edge Functions under the hood.`,
+  description: `An interactive game that lets you compare the latency of Edge functions and Serverless functions compared to calling a local function in your code.
+    Edge functions are said to not have the cold-start problem that serverless function do, so this game also let's you visually see
+    if that's true!  The first iteration of this game used Xata worker edge functions, which get deployed to Cloudflare's edge network.
+    I then converted over to Next.js's edge functions, which I believe get to deployed to AWS.`,
   // Next.js is now putting this viewport meta tag in automatically
   //viewport: "width=device-width, initial-scale=1",
   icons: {

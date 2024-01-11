@@ -9,8 +9,10 @@ import ExpandLessGlyph from "components/icon-glyphs/expand_less-glyph";
 import ExpandMoreGlyph from "components/icon-glyphs/expand_more-glyph";
 import IconButton from "components/icon/icon-button";
 import GameToken from "components/game-token";
+import SettingsBar from "./settings-bar";
 import styles from "./edge-function-game.module.css";
 import debounce from "lib/debounce";
+import { serverActionHandler } from "app/api/serverAction";
 
 enum MoveDirection {
   Up = "Up",
@@ -19,26 +21,40 @@ enum MoveDirection {
   Right = "Right",
 }
 
-// const moveViaXataWorker = xataWorker(
-//   "moveViaXataWorker",
-//   async ({ xata }, newTranslateVal: number) => {
-//     const SIMULATE_DELAY = false;
-//     const DELAY_AMOUNT = 350;
-//     // console.log(
-//     //   "Hello from Xata Edge worker function.  Value received: " +
-//     //     newTranslateVal
-//     // );
-//     if (SIMULATE_DELAY) {
-//       await new Promise((resolve) => setTimeout(resolve, DELAY_AMOUNT));
-//     }
-//     return newTranslateVal;
-//   }
-// );
+export enum NetworkType {
+  // Make sure to set the region in the vercel.json file the serverless option listed here
+  VercelServerlessAustralia = "VercelServerlessAustralia",
+  // This is the default Vercel serverless region
+  //VercelServerlessWashingtonDC = "VercelServerlessWashingtonDC",
+  VercelEdge = "VercelEdge",
+}
 
-const moveViaNextRouteHandler = async (newTranslateVal: number) => {
-  const res = await fetch("/api", {
+/*
+const moveViaXataWorker = xataWorker(
+  "moveViaXataWorker",
+  async ({ xata }, newTranslateVal: number) => {
+    const SIMULATE_DELAY = false;
+    const DELAY_AMOUNT = 350;
+
+    if (SIMULATE_DELAY) {
+      await new Promise((resolve) => setTimeout(resolve, DELAY_AMOUNT));
+    }
+    return newTranslateVal;
+  }
+);
+*/
+
+const moveViaNextRouteHandler = async (
+  newTranslateVal: number,
+  shouldUseEdgeNetwork: boolean = true
+) => {
+  const route = `/api/${
+    shouldUseEdgeNetwork ? "edge-network" : "serverless-network"
+  }`;
+
+  // Next.js will look for a "route.ts" file in the directory specified
+  const res = await fetch(route, {
     method: "Post",
-    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ newTranslateVal }),
   });
   const { newTranslateVal: serverTranslateVal } = await res.json();
@@ -51,6 +67,9 @@ export default function EdgeFunctionGame({
 }: {
   className?: string;
 }) {
+  const [selectedNetwork, setSelectedNetwork] = useState<NetworkType>(
+    NetworkType.VercelEdge
+  );
   const [localTranslateY, setLocalTranslateY] = useState<number>(0);
   const [localTranslateX, setLocalTranslateX] = useState<number>(0);
   const [edgeFunctionTranslateY, setEdgeFunctionTranslateY] = useState(0);
@@ -94,12 +113,37 @@ export default function EdgeFunctionGame({
       const edgeFunctionSentTime = new Date().getTime();
 
       async function handleEdgeFunctionCall(value: number, xOrY: "X" | "Y") {
-        const serverVal = await moveViaNextRouteHandler(value);
+        let serverVal;
+
+        switch (selectedNetwork) {
+          case NetworkType.VercelEdge:
+            serverVal = await moveViaNextRouteHandler(value, true);
+            break;
+          case NetworkType.VercelServerlessAustralia:
+            serverVal = await moveViaNextRouteHandler(value, false);
+            break;
+        }
+
+        /*
+        TODO: Figure out how to import and call this server action in a component that has `export const runtime = 'edge';`,
+               as shown here: https://sdk.vercel.ai/docs/api-reference/streaming-react-response#client-side-setup
+
+               I think the idea is to use (or create) a SERVER COMPONENT to:
+                 (1) Set the runtime to 'edge', and
+                 (2) Import the server action and pass it to an instance of the client component that needs to call it
+
+              That should make the server action become an edge function because "server actions inherit the runtime from the page
+              or layout they are used on."
+
+        */
+        //const serverVal = await serverActionHandler(value);
 
         const edgeFunctionReceivedTime = new Date().getTime();
 
         console.log(
-          `${xOrY} value sent to edge function.  Latency: ${
+          `${xOrY} value sent to ${
+            selectedNetwork === NetworkType.VercelEdge ? "EDGE" : "SERVERLESS"
+          } function.  Latency: ${
             edgeFunctionReceivedTime - edgeFunctionSentTime
           }ms`
         );
@@ -120,7 +164,7 @@ export default function EdgeFunctionGame({
       }
       //console.log("Just updated position.");
     },
-    [edgeFunctionTranslateX, edgeFunctionTranslateY]
+    [edgeFunctionTranslateX, edgeFunctionTranslateY, selectedNetwork]
   );
 
   async function handleArrowClick(direction: MoveDirection) {
@@ -179,79 +223,95 @@ export default function EdgeFunctionGame({
     gameBoardHeightRef.current = board?.offsetHeight;
   }, [updatePosition]);
 
+  useEffect(() => {
+    console.log(
+      `Selected network updated to: ${
+        selectedNetwork === NetworkType.VercelEdge ? "EDGE" : "SERVERLESS"
+      }`
+    );
+  }, [selectedNetwork]);
+
   const gameBoardColorClassNames = hasExited ? "bg-green-600" : "bg-gray-800";
   const gameTokenFrameClassNames =
     "absolute top-[calc(50%-20px)] left-[calc(50%-20px)] sm:top-[calc(50%-24px)] sm:left-[calc(50%-24px)]";
 
   return (
-    <section className={cn(styles.root, className)}>
-      <IconButton
-        className={styles.upArrow}
-        onClick={() => handleArrowClick(MoveDirection.Up)}
-        {...iconButtonHoverElementClassNameProp}
-      >
-        <ExpandLessGlyph />
-      </IconButton>
+    <div className="mt-10 h-full">
+      <SettingsBar
+        className="my-5"
+        selectedNetwork={selectedNetwork}
+        onSelectedNetworkChange={setSelectedNetwork}
+      />
 
-      <IconButton
-        className={styles.leftArrow}
-        onClick={() => handleArrowClick(MoveDirection.Left)}
-        {...iconButtonHoverElementClassNameProp}
-      >
-        <ChevronLeftGlyph />
-      </IconButton>
+      <section className={cn(styles.game, className)}>
+        <IconButton
+          className={styles.upArrow}
+          onClick={() => handleArrowClick(MoveDirection.Up)}
+          {...iconButtonHoverElementClassNameProp}
+        >
+          <ExpandLessGlyph />
+        </IconButton>
 
-      <span
-        ref={gameBoardRef}
-        className={cn(
-          styles.gameBoard,
-          "relative rounded-lg  text-white",
-          gameBoardColorClassNames
-        )}
-      >
-        <AnimatePresence>
-          <motion.span
-            exit={{
-              opacity: [0.15, 0], // Keyframes (also see the corresponding "times" array in the "transition" property)
-            }}
-            transition={{ duration: 1.3, times: [0, 1] }}
-            key={`${localTranslateY}-${localTranslateX}-${clickCounter}--Local`}
-            className={gameTokenFrameClassNames}
-          >
-            {/* The "immediate move" token with paper-trail effect */}
+        <IconButton
+          className={styles.leftArrow}
+          onClick={() => handleArrowClick(MoveDirection.Left)}
+          {...iconButtonHoverElementClassNameProp}
+        >
+          <ChevronLeftGlyph />
+        </IconButton>
+
+        <span
+          ref={gameBoardRef}
+          className={cn(
+            styles.gameBoard,
+            "relative rounded-lg  text-white",
+            gameBoardColorClassNames
+          )}
+        >
+          <AnimatePresence>
+            <motion.span
+              exit={{
+                opacity: [0.15, 0], // Keyframes (also see the corresponding "times" array in the "transition" property)
+              }}
+              transition={{ duration: 1.3, times: [0, 1] }}
+              key={`${localTranslateY}-${localTranslateX}-${clickCounter}--Local`}
+              className={gameTokenFrameClassNames}
+            >
+              {/* The "immediate move" token with paper-trail effect */}
+              <GameToken
+                translateX={localTranslateX}
+                translateY={localTranslateY}
+                className="text-[#ffff3d]"
+              />
+            </motion.span>
+          </AnimatePresence>
+
+          <span className={gameTokenFrameClassNames}>
+            {/* The network-moved token. */}
             <GameToken
-              translateX={localTranslateX}
-              translateY={localTranslateY}
-              className="text-[#ffff3d]"
+              translateX={edgeFunctionTranslateX}
+              translateY={edgeFunctionTranslateY}
+              className="text-[#00d0ff] transition duration-200"
             />
-          </motion.span>
-        </AnimatePresence>
-
-        <span className={gameTokenFrameClassNames}>
-          {/* The network-moved token. */}
-          <GameToken
-            translateX={edgeFunctionTranslateX}
-            translateY={edgeFunctionTranslateY}
-            className="text-[#00d0ff] transition duration-200"
-          />
+          </span>
         </span>
-      </span>
 
-      <IconButton
-        className={styles.rightArrow}
-        onClick={() => handleArrowClick(MoveDirection.Right)}
-        {...iconButtonHoverElementClassNameProp}
-      >
-        <ChevronRightGlyph />
-      </IconButton>
+        <IconButton
+          className={styles.rightArrow}
+          onClick={() => handleArrowClick(MoveDirection.Right)}
+          {...iconButtonHoverElementClassNameProp}
+        >
+          <ChevronRightGlyph />
+        </IconButton>
 
-      <IconButton
-        className={styles.downArrow}
-        onClick={() => handleArrowClick(MoveDirection.Down)}
-        {...iconButtonHoverElementClassNameProp}
-      >
-        <ExpandMoreGlyph />
-      </IconButton>
-    </section>
+        <IconButton
+          className={styles.downArrow}
+          onClick={() => handleArrowClick(MoveDirection.Down)}
+          {...iconButtonHoverElementClassNameProp}
+        >
+          <ExpandMoreGlyph />
+        </IconButton>
+      </section>
+    </div>
   );
 }

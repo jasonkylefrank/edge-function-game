@@ -1,0 +1,5 @@
+{
+  "//regions description": "The network region to deploy SERVERLESS functions to (does NOT apply to EDGE functions).",
+  "//region codes": "'syd1': Sydney, Australia,  'iad1': Washington D.C. (default)",
+  "regions": ["syd1"]
+}
