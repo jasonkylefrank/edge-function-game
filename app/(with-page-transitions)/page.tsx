@@ -1,27 +1,54 @@
 import EdgeFunctionGame from "components/edge-function-game/edge-function-game";
+import GameTokenForDescription from "components/game-token-for-description";
 
 export default function Home() {
   return (
     <div>
       <h2>{`Edge function experiment: "Heal the broken heart!"`}</h2>
 
-      <p>{`Web developer hearts broke when they saw the cold-starts of serverless functions. 😞`}</p>
+      <p>
+        {`Web developer hearts broke when they saw problems with serverless functions: `}
+        <strong>{`cold starts`}</strong>
+        {` and `} <strong>{`network latency`}</strong>{" "}
+        {` caused by their functions being deployed to a single region. 😞`}
+      </p>
 
-      <p>{`But alas, edge functions evolved to (hopefully) save the day!`}</p>
+      <p>{`But alas, edge functions were created to (hopefully) save the day!`}</p>
 
-      <p>{`Let's test-out the latency of an edge network function and get this heart healed!  Heal the heart by moving it out
+      <p>
+        {`Edge functions run on an `}
+        <em>{`edge network`}</em>
+        {`, which is a bit like a CDN for serverless functions 
+      (except the runtime is more limited so you can't just deploy `}
+        <em>{`any`}</em>
+        {` serverless function to the edge).`}
+      </p>
+
+      <p>{`Let's test-out the latency and cold-start aspect of an edge network function and get this heart healed!  Heal the heart by moving it out
            of the game board one step at a time.`}</p>
       <p>
         {`With each move, this app will simultenously execute 2 types of moves:`}
       </p>
       <ol>
-        <li>{`A round-trip edge-network move by calling a function that has been deployed to an edge network.`}</li>
-        <li>{`A "local move" that moves a version of the heart immediately.`}</li>
+        <li>
+          {`A "local move" heart `}
+          <GameTokenForDescription tokenType="local" />
+          {` that moves immediately (with a paper-trail effect).`}
+        </li>
+        <li>
+          {`A round-trip network-move heart `}
+          <GameTokenForDescription tokenType="network" />
+          {` that moves once its network call returns.`}
+          <div className="text-black/40">{`  I also added an animation to this move so you can more-easily see it "flow onto" the spot of the local-move heart.`}</div>
+        </li>
       </ol>
 
       <p>
-        {`You'll be able to visually see the difference between the “local move” (immediate) and the move that comes back from the edge 
-          function.  Hopefully the difference is pretty small!            
+        {`You'll be able to visually see the difference between these two types.  Hopefully the edge function proves more responsive than the serverless function!            
+          `}
+      </p>
+      <p className="text-sm italic text-black/40">
+        {`DEVELOPER TIP: Open up the console to see some valuable info printed as you make moves or change network settings.
           `}
       </p>
 

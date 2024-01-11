@@ -28,6 +28,11 @@ export enum NetworkType {
   VercelEdge = "VercelEdge",
 }
 
+export const gameTokenColorClassNames = {
+  local: "text-[#ffff3d]",
+  network: "text-[#4ddeff]",
+};
+
 /*
 const moveViaXataWorker = xataWorker(
   "moveViaXataWorker",
@@ -82,8 +87,8 @@ export default function EdgeFunctionGame({
   );
   const [localTranslateY, setLocalTranslateY] = useState<number>(0);
   const [localTranslateX, setLocalTranslateX] = useState<number>(0);
-  const [edgeFunctionTranslateY, setEdgeFunctionTranslateY] = useState(0);
-  const [edgeFunctionTranslateX, setEdgeFunctionTranslateX] = useState(0);
+  const [networkFunctionTranslateY, setNetworkFunctionTranslateY] = useState(0);
+  const [networkFunctionTranslateX, setNetworkFunctionTranslateX] = useState(0);
   // A counter to help differentiate instances of the game token between renderings since the translateX and translateY values can be landed-upon multiple times (this helps create unique key for animations)
   const [clickCounter, setClickCounter] = useState(0);
   // Need to pass-in null since this ref is to store a reference to an HTML element (as opposed to an arbitrary variable). Initializing it with null makes the ref's 'current' property readonly and satisfies the TypeScrip compiler.  See: https://stackoverflow.com/a/61680609/718325
@@ -119,10 +124,10 @@ export default function EdgeFunctionGame({
       setLocalTranslateY(newTranslateY);
       setLocalTranslateX(newTranslateX);
 
-      // Keep the edge function calls at the bottom since we're awaiting them (we need to make sure the local moves are not blocked)
-      const edgeFunctionSentTime = new Date().getTime();
+      // Keep the network function calls at the bottom since we're awaiting them (we need to make sure the local moves are not blocked)
+      const networkFunctionSentTime = new Date().getTime();
 
-      async function handleEdgeFunctionCall(value: number, xOrY: "X" | "Y") {
+      async function handleNetworkFunctionCall(value: number, xOrY: "X" | "Y") {
         let serverVal;
 
         switch (selectedNetwork) {
@@ -148,33 +153,33 @@ export default function EdgeFunctionGame({
         */
         //const serverVal = await serverActionHandler(value);
 
-        const edgeFunctionReceivedTime = new Date().getTime();
+        const networkFunctionReceivedTime = new Date().getTime();
 
         console.log(
-          `${xOrY} value sent to ${
+          `${xOrY} value received back from ${
             selectedNetwork === NetworkType.VercelEdge ? "EDGE" : "SERVERLESS"
           } function.  Latency: ${
-            edgeFunctionReceivedTime - edgeFunctionSentTime
+            networkFunctionReceivedTime - networkFunctionSentTime
           }ms`
         );
         switch (xOrY) {
           case "X":
-            setEdgeFunctionTranslateX(serverVal);
+            setNetworkFunctionTranslateX(serverVal);
             break;
           case "Y":
-            setEdgeFunctionTranslateY(serverVal);
+            setNetworkFunctionTranslateY(serverVal);
             break;
         }
       }
-      if (edgeFunctionTranslateY !== newTranslateY) {
-        handleEdgeFunctionCall(newTranslateY, "Y");
+      if (networkFunctionTranslateY !== newTranslateY) {
+        handleNetworkFunctionCall(newTranslateY, "Y");
       }
-      if (edgeFunctionTranslateX !== newTranslateX) {
-        handleEdgeFunctionCall(newTranslateX, "X");
+      if (networkFunctionTranslateX !== newTranslateX) {
+        handleNetworkFunctionCall(newTranslateX, "X");
       }
       //console.log("Just updated position.");
     },
-    [edgeFunctionTranslateX, edgeFunctionTranslateY, selectedNetwork]
+    [networkFunctionTranslateX, networkFunctionTranslateY, selectedNetwork]
   );
 
   async function handleArrowClick(direction: MoveDirection) {
@@ -292,7 +297,7 @@ export default function EdgeFunctionGame({
               <GameToken
                 translateX={localTranslateX}
                 translateY={localTranslateY}
-                className="text-[#ffff3d]"
+                className={gameTokenColorClassNames.local}
               />
             </motion.span>
           </AnimatePresence>
@@ -300,9 +305,9 @@ export default function EdgeFunctionGame({
           <span className={gameTokenFrameClassNames}>
             {/* The network-moved token. */}
             <GameToken
-              translateX={edgeFunctionTranslateX}
-              translateY={edgeFunctionTranslateY}
-              className="text-[#00d0ff] transition duration-200"
+              translateX={networkFunctionTranslateX}
+              translateY={networkFunctionTranslateY}
+              className={`${gameTokenColorClassNames.network} transition duration-200`}
             />
           </span>
         </span>
