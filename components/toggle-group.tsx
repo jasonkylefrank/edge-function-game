@@ -11,12 +11,14 @@ interface ToggleGroupProps {
   items: ToggleItem[];
   className?: string;
   selectedIndex: number;
+  transitionDuration?: number;
 }
 
 const ToggleGroup: FC<ToggleGroupProps> = ({
   items,
   className,
   selectedIndex,
+  transitionDuration = 0.25,
 }) => {
   return (
     <span className={`inline-flex rounded border border-black/20 ${className}`}>
@@ -33,7 +35,7 @@ const ToggleGroup: FC<ToggleGroupProps> = ({
             {isSelected && (
               <motion.span
                 layoutId="selectedItemBackground"
-                transition={{ duration: 0.25 }}
+                transition={{ duration: transitionDuration }}
                 className="absolute top-0 left-0 h-full w-full bg-black/10"
               />
             )}

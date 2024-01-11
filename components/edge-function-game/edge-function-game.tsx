@@ -12,6 +12,7 @@ import GameToken from "components/game-token";
 import SettingsBar from "./settings-bar";
 import styles from "./edge-function-game.module.css";
 import debounce from "lib/debounce";
+import vercelSettings from "vercel.json";
 import { serverActionHandler } from "app/api/serverAction";
 
 enum MoveDirection {
@@ -22,10 +23,8 @@ enum MoveDirection {
 }
 
 export enum NetworkType {
-  // Make sure to set the region in the vercel.json file the serverless option listed here
+  // Make sure to set the region in the vercel.json file to the serverless option listed here (the Washington DC node is the default serverless location but we want one farther away from the USA for this test)
   VercelServerlessAustralia = "VercelServerlessAustralia",
-  // This is the default Vercel serverless region
-  //VercelServerlessWashingtonDC = "VercelServerlessWashingtonDC",
   VercelEdge = "VercelEdge",
 }
 
@@ -67,6 +66,17 @@ export default function EdgeFunctionGame({
 }: {
   className?: string;
 }) {
+  const vercelAustraliaRegionCode = "syd1";
+  if (vercelSettings.regions[0] !== vercelAustraliaRegionCode) {
+    throw new Error(
+      `This app expects the region code in the vercel.json file to be 
+      '${vercelAustraliaRegionCode}', which would indicate that the Serverless functions will be 
+      deployed to Vercel's node in Syndney, Australia (thus enabling a longer network latency 
+      for those of us in the USA when the Serverless option is selected in the UI). 
+      The region code found in the vercel.json was: '${vercelSettings.regions[0]}'`
+    );
+  }
+
   const [selectedNetwork, setSelectedNetwork] = useState<NetworkType>(
     NetworkType.VercelEdge
   );
@@ -241,6 +251,7 @@ export default function EdgeFunctionGame({
         className="my-5"
         selectedNetwork={selectedNetwork}
         onSelectedNetworkChange={setSelectedNetwork}
+        serverlessRegionCode={vercelSettings.regions[0]}
       />
 
       <section className={cn(styles.game, className)}>
