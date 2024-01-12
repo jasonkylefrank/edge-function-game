@@ -2,6 +2,7 @@ import { FC, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import EarthGlyph from "components/icon-glyphs/earth-glyph";
 import HubGlyph from "components/icon-glyphs/hub-glyph";
+import VercelEdgeGlyph from "components/icon-glyphs/vercel_edge-glyph";
 import ToggleGroup from "components/toggle-group";
 import { NetworkType } from "./edge-function-game";
 
@@ -53,8 +54,8 @@ const SettingsBar: FC<SettingsBarProps> = ({
             {
               content: (
                 <>
-                  <HubGlyph className="mr-2 h-5" />
-                  {"Edge network"}
+                  <VercelEdgeGlyph className="mr-2 h-6" />
+                  {"Edge"}
                 </>
               ),
               value: NetworkType.VercelEdge,
@@ -64,7 +65,7 @@ const SettingsBar: FC<SettingsBarProps> = ({
               content: (
                 <>
                   <EarthGlyph className="mr-2 h-6" />
-                  {"Serverless network"}
+                  {"Serverless"}
                 </>
               ),
               value: NetworkType.VercelServerlessAustralia,

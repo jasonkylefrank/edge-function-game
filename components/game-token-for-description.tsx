@@ -17,7 +17,7 @@ const GameTokenForDescription: FC<GameTokenForDescriptionProps> = ({
         tokenType === "local"
           ? gameTokenColorClassNames.local
           : gameTokenColorClassNames.network
-      } inline h-6 rounded-3xl bg-black/80 p-1`}
+      } inline h-[22px] rounded-3xl bg-black/80 p-[3px]`}
     />
   );
 };

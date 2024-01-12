@@ -21,14 +21,16 @@ const ToggleGroup: FC<ToggleGroupProps> = ({
   transitionDuration = 0.25,
 }) => {
   return (
-    <span className={`inline-flex rounded border border-black/20 ${className}`}>
+    <span
+      className={`inline-grid grid-cols-2 rounded border border-black/20 ${className}`}
+    >
       {items.map((item: ToggleItem, i: number) => {
         const isSelected = selectedIndex === i;
         const statefulClassNames = isSelected ? "opacity-100" : "opacity-50";
         return (
           <span
             key={i}
-            className={`relative inline-flex cursor-pointer place-items-center py-1 px-3 ${statefulClassNames}`}
+            className={`relative inline-flex cursor-pointer place-content-center place-items-center py-1 px-3 ${statefulClassNames}`}
             onClick={() => item.onClick(i, item.value)}
           >
             {item.content}

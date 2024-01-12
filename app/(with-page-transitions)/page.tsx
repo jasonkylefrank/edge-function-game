@@ -4,7 +4,9 @@ import GameTokenForDescription from "components/game-token-for-description";
 export default function Home() {
   return (
     <div>
-      <h2>{`Edge function experiment: "Heal the broken heart!"`}</h2>
+      <div className="mb-14 -mt-5">
+        <h2 className="text-center">{`Edge function experiment: "Heal the broken heart!"`}</h2>
+      </div>
 
       <p>
         {`Web developer hearts broke when they saw problems with serverless functions: `}

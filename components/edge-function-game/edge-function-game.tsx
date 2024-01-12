@@ -138,19 +138,6 @@ export default function EdgeFunctionGame({
             serverVal = await moveViaNextRouteHandler(value, false);
             break;
         }
-
-        /*
-        TODO: Figure out how to import and call this server action in a component that has `export const runtime = 'edge';`,
-               as shown here: https://sdk.vercel.ai/docs/api-reference/streaming-react-response#client-side-setup
-
-               I think the idea is to use (or create) a SERVER COMPONENT to:
-                 (1) Set the runtime to 'edge', and
-                 (2) Import the server action and pass it to an instance of the client component that needs to call it
-
-              That should make the server action become an edge function because "server actions inherit the runtime from the page
-              or layout they are used on."
-
-        */
         //const serverVal = await serverActionHandler(value);
 
         const networkFunctionReceivedTime = new Date().getTime();
