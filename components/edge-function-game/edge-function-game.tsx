@@ -251,7 +251,7 @@ export default function EdgeFunctionGame({
     "absolute top-[calc(50%-20px)] left-[calc(50%-20px)] sm:top-[calc(50%-24px)] sm:left-[calc(50%-24px)]";
 
   return (
-    <div className="mt-10 h-full">
+    <div className="mt-4 h-full">
       <SettingsBar
         className="my-5"
         selectedNetwork={selectedNetwork}

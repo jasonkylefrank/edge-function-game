@@ -52,6 +52,9 @@ export default function Home() {
           `}
       </p>
 
+      <span className="not-prose">
+        <hr className="my-10" />
+      </span>
       {/* NOTE: Don't apply the sizing classes directly to the game component since they won't override the component's size classes in the production build */}
       <div className="h-[580px] sm:h-[1080px]">
         <EdgeFunctionGame />
