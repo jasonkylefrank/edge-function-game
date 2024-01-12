@@ -13,9 +13,9 @@ export default function RegularPagesLayout({
       <AppBar />
 
       <main
-        className="mt-18 prose m-6 mb-28 grid max-w-[1280px]
+        className="prose m-6 mt-14 mb-28 grid max-w-[1280px]
           place-items-center text-gray-900
-          prose-a:text-blue-600 prose-a:no-underline md:m-7 md:mt-20 md:mb-32 md:prose-lg lg:m-8 lg:mt-24
+          prose-a:text-blue-600 prose-a:no-underline md:m-7 md:mt-16 md:mb-32 md:prose-lg lg:m-8 lg:mt-20
           lg:mb-36"
       >
         {/* Note: The children are also wrapped by my `template.tsx` (if present at some level).  See: https://beta.nextjs.org/docs/routing/pages-and-layouts#templates 
