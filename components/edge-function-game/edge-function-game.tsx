@@ -102,6 +102,10 @@ export default function EdgeFunctionGame({
   const currentXStepRef = useRef<number>(0);
   const [hasExited, setHasExited] = useState<boolean>(false);
 
+  const [isLocalMoveAnimationOn, setIsLocalMoveAnimationOn] = useState(true);
+  const [isNetworkMoveAnimationOn, setIsNetworkMoveAnimationOn] =
+    useState(true);
+
   const iconButtonHoverElementClassNameProp = {
     hoverElementClassName:
       "!rounded-lg !top-0 !bottom-0 !left-0 !right-0 scale-75 !group-hover:opacity-10",
@@ -244,6 +248,10 @@ export default function EdgeFunctionGame({
         selectedNetwork={selectedNetwork}
         onSelectedNetworkChange={setSelectedNetwork}
         serverlessRegionCode={vercelSettings.regions[0]}
+        isLocalMoveAnimationOn={isLocalMoveAnimationOn}
+        onIsLocalMoveAnimationOnChange={setIsLocalMoveAnimationOn}
+        isNetworkMoveAnimationOn={isNetworkMoveAnimationOn}
+        onIsNetworkMoveAnimationOnChange={setIsNetworkMoveAnimationOn}
       />
 
       <section className={cn(styles.game, className)}>
@@ -273,9 +281,13 @@ export default function EdgeFunctionGame({
         >
           <AnimatePresence>
             <motion.span
-              exit={{
-                opacity: [0.15, 0], // Keyframes (also see the corresponding "times" array in the "transition" property)
-              }}
+              exit={
+                isLocalMoveAnimationOn
+                  ? {
+                      opacity: [0.15, 0], // Keyframes (also see the corresponding "times" array in the "transition" property)
+                    }
+                  : undefined
+              }
               transition={{ duration: 1.3, times: [0, 1] }}
               key={`${localTranslateY}-${localTranslateX}-${clickCounter}--Local`}
               className={gameTokenFrameClassNames}
@@ -294,7 +306,9 @@ export default function EdgeFunctionGame({
             <GameToken
               translateX={networkFunctionTranslateX}
               translateY={networkFunctionTranslateY}
-              className={`${gameTokenColorClassNames.network} transition duration-200`}
+              className={`${gameTokenColorClassNames.network} ${
+                isNetworkMoveAnimationOn ? "transition duration-200" : ""
+              } `}
             />
           </span>
         </span>

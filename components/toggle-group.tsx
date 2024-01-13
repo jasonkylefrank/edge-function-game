@@ -1,11 +1,10 @@
 import type { FC } from "react";
 import { motion } from "framer-motion";
-import { NetworkType } from "./edge-function-game/edge-function-game";
 
 interface ToggleItem {
   content: React.ReactNode;
   value: any;
-  onClick: (newSelectedIndex: number, newNetworkType: NetworkType) => void;
+  onClick: (newSelectedIndex: number, value: any) => void;
 }
 interface ToggleGroupProps {
   items: ToggleItem[];
@@ -22,7 +21,7 @@ const ToggleGroup: FC<ToggleGroupProps> = ({
 }) => {
   return (
     <span
-      className={`inline-grid grid-cols-2 rounded border border-black/20 ${className}`}
+      className={`inline-grid select-none grid-cols-2 rounded border border-black/20 ${className}`}
     >
       {items.map((item: ToggleItem, i: number) => {
         const isSelected = selectedIndex === i;
@@ -30,7 +29,7 @@ const ToggleGroup: FC<ToggleGroupProps> = ({
         return (
           <span
             key={i}
-            className={`relative inline-flex cursor-pointer place-content-center place-items-center py-1 px-3 ${statefulClassNames}`}
+            className={`relative inline-flex cursor-pointer place-content-center place-items-center p-1 px-3 ${statefulClassNames}`}
             onClick={() => item.onClick(i, item.value)}
           >
             {item.content}
