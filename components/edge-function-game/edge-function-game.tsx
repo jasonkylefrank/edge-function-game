@@ -68,8 +68,10 @@ const moveViaNextRouteHandler = async (
 
 export default function EdgeFunctionGame({
   className,
+  isRaw = false,
 }: {
   className?: string;
+  isRaw?: boolean;
 }) {
   const vercelAustraliaRegionCode = "syd1";
   if (vercelSettings.regions[0] !== vercelAustraliaRegionCode) {
@@ -244,6 +246,7 @@ export default function EdgeFunctionGame({
   return (
     <div className="flex h-full flex-col">
       <SettingsBar
+        isRaw={isRaw}
         className="my-5"
         selectedNetwork={selectedNetwork}
         onSelectedNetworkChange={setSelectedNetwork}
