@@ -9,7 +9,7 @@ import ExpandLessGlyph from "components/icon-glyphs/expand_less-glyph";
 import ExpandMoreGlyph from "components/icon-glyphs/expand_more-glyph";
 import IconButton from "components/icon/icon-button";
 import GameToken from "components/game-token";
-import SettingsBar from "./settings-bar";
+import SettingsBar from "./settings-bar/settings-bar";
 import styles from "./edge-function-game.module.css";
 import debounce from "lib/debounce";
 import vercelSettings from "vercel.json";

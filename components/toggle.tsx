@@ -1,7 +1,7 @@
 import { FC, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
-interface ToggleProps {
+export interface ToggleProps {
   isOn: boolean;
   className?: string;
   transitionDuration: number;
