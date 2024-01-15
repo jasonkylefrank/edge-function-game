@@ -21,7 +21,8 @@ const ToggleGroup: FC<ToggleGroupProps> = ({
 }) => {
   return (
     <span
-      className={`inline-grid select-none grid-cols-2 rounded border border-black/20 ${className}`}
+      // `grid-cols-[repeat(2,minmax(auto,1fr))]` sets the widths equal when there is space to do so (based on the widest content item)...and then shrinks the smaller-width-content items when space gets compressed
+      className={`inline-grid select-none grid-cols-[repeat(2,minmax(auto,1fr))] rounded border border-black/20 ${className}`}
     >
       {items.map((item: ToggleItem, i: number) => {
         const isSelected = selectedIndex === i;

@@ -9,6 +9,7 @@ import Toggle from "components/toggle";
 import HeartBrokenAnimateGlyph from "components/icon-glyphs/heart_broken_animate-glyph";
 
 interface SettingsBarProps {
+  isRaw?: boolean;
   className?: string;
   selectedNetwork: NetworkType;
   onSelectedNetworkChange: (newSelectedNetwork: NetworkType) => void;
@@ -20,6 +21,7 @@ interface SettingsBarProps {
 }
 
 const SettingsBar: FC<SettingsBarProps> = ({
+  isRaw,
   className,
   selectedNetwork,
   onSelectedNetworkChange,
@@ -42,7 +44,7 @@ const SettingsBar: FC<SettingsBarProps> = ({
   }
 
   let networkTagline;
-  let networkTaglineRightCSS = null;
+  let networkTaglineStatefullClassNames = "";
 
   switch (selectedNetwork) {
     case NetworkType.VercelEdge:
@@ -51,19 +53,23 @@ const SettingsBar: FC<SettingsBarProps> = ({
 
     case NetworkType.VercelServerlessAustralia:
       networkTagline = `Vercel's node in Syndney, Australia (${serverlessRegionCode})`;
-      networkTaglineRightCSS = 0;
+      networkTaglineStatefullClassNames = "right-0 text-right";
   }
 
   const localMoveAnimationTagline = isLocalMoveAnimationOn
     ? "Paper-trail effect"
     : "";
   const networkMoveAnimationTagline = isNetworkMoveAnimationOn
-    ? "Move starts when network call returns"
+    ? "Move starts when the call returns"
     : "";
 
   return (
-    <div className={`flex place-content-center gap-10 ${className}`}>
-      <span className="flex flex-col place-items-center">
+    <div
+      className={`flex flex-wrap place-content-center ${
+        isRaw ? "gap-4" : "gap-10"
+      } ${className}`}
+    >
+      <span className={`flex flex-col place-items-center ${isRaw && "px-4"}`}>
         <ToggleGroup
           className="font-mono text-sm"
           selectedIndex={selectedNetworkIndex}
@@ -95,9 +101,7 @@ const SettingsBar: FC<SettingsBarProps> = ({
           <AnimatePresence>
             <motion.label
               key={networkTagline}
-              className={`absolute top-0 text-xs text-black/40 ${
-                networkTaglineRightCSS !== null && "right-0"
-              }`}
+              className={`absolute top-0 text-xs text-black/40 ${networkTaglineStatefullClassNames}`}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -109,17 +113,21 @@ const SettingsBar: FC<SettingsBarProps> = ({
         </span>
       </span>
 
-      <span className="flex gap-5">
+      <span
+        className={`flex flex-wrap place-content-center gap-5 ${
+          isRaw && "px-4"
+        }`}
+      >
         <span className="flex flex-col place-items-center">
           <Toggle
             isOn={isLocalMoveAnimationOn}
             onClick={onIsLocalMoveAnimationOnChange}
             transitionDuration={singleToggleTransitionDuration}
-            className="px-3 font-mono text-sm"
+            className="whitespace-nowrap px-3 font-mono text-sm"
             content={
               <>
                 <HeartBrokenAnimateGlyph className={`mr-2 h-6`} />
-                {"Local-move animation"}
+                {"Local animation"}
               </>
             }
           />
@@ -143,11 +151,11 @@ const SettingsBar: FC<SettingsBarProps> = ({
             isOn={isNetworkMoveAnimationOn}
             onClick={onIsNetworkMoveAnimationOnChange}
             transitionDuration={singleToggleTransitionDuration}
-            className="px-3 font-mono text-sm"
+            className="whitespace-nowrap px-3 font-mono text-sm"
             content={
               <>
                 <HeartBrokenAnimateGlyph className={`mr-2 h-6`} />
-                {"Network-move animation"}
+                {"Network animation"}
               </>
             }
           />

@@ -6,5 +6,5 @@ export const metadata = {
 };
 
 export default function Raw() {
-  return <EdgeFunctionGame />;
+  return <EdgeFunctionGame isRaw={true} />;
 }
