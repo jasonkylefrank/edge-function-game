@@ -197,6 +197,7 @@ export default function VictoryOverlay({
   const animationControls = useAnimationControls();
   const isSmallScreen = useMediaQuery("(max-width: 640px)");
 
+  //#region --- math stuff ---
   const firstEdgeCallLatency = networkLatencies.find(
     (item) => item.networkType === NetworkType.VercelEdge
   )?.latency;
@@ -210,7 +211,6 @@ export default function VictoryOverlay({
         item.networkType === networkType ? count + 1 : count,
       0
     );
-
     const averageLatency =
       networkLatencies.reduce(
         (accum: number, item) =>
@@ -240,6 +240,7 @@ export default function VictoryOverlay({
       ? Math.min(...getNetworkTypeLatencies(networkType))
       : undefined;
   };
+  //#endregion --- end math stuff ---
 
   useEffect(() => {
     async function runAnimationStates() {
@@ -279,7 +280,7 @@ export default function VictoryOverlay({
           <motion.a
             variants={restartLinkVariants}
             onClick={handleRestartGameClick}
-            className="cursor-pointer text-white"
+            className="cursor-pointer text-white opacity-0"
           >
             {"restart game"}
           </motion.a>
@@ -309,7 +310,7 @@ export default function VictoryOverlay({
 
           <motion.h3
             variants={otherElementsVariants}
-            className="mt-9 text-5xl font-light"
+            className="mt-9 text-5xl font-light opacity-0"
           >
             {"You did it!"}
           </motion.h3>
@@ -317,7 +318,7 @@ export default function VictoryOverlay({
 
         <motion.div
           variants={otherElementsVariants}
-          className="max-w-xl text-base"
+          className="max-w-xl text-base opacity-0"
         >
           <div className="mt-8 grid w-full grid-cols-[1fr_auto_1fr] place-items-center gap-6">
             <hr className={`${statsHeaderSideBorderClassNames}`} />
