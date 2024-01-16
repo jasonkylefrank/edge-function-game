@@ -13,6 +13,7 @@ import SettingsBar from "./settings-bar/settings-bar";
 import styles from "./edge-function-game.module.css";
 import debounce from "lib/debounce";
 import vercelSettings from "vercel.json";
+import VictoryOverlay from "./victory-overlay/victory-overlay";
 import { serverActionHandler } from "app/api/serverAction";
 
 enum MoveDirection {
@@ -23,9 +24,9 @@ enum MoveDirection {
 }
 
 export enum NetworkType {
+  VercelEdge = 0,
   // Make sure to set the region in the vercel.json file to the serverless option listed here (the Washington DC node is the default serverless location but we want one farther away from the USA for this test)
-  VercelServerlessAustralia = "VercelServerlessAustralia",
-  VercelEdge = "VercelEdge",
+  VercelServerlessAustralia = 1,
 }
 
 export const gameTokenColorClassNames = {
@@ -107,6 +108,20 @@ export default function EdgeFunctionGame({
   const [isLocalMoveAnimationOn, setIsLocalMoveAnimationOn] = useState(true);
   const [isNetworkMoveAnimationOn, setIsNetworkMoveAnimationOn] =
     useState(true);
+
+  const handleRestartGame = () => {
+    setSelectedNetwork(NetworkType.VercelEdge);
+    setLocalTranslateY(0);
+    setLocalTranslateX(0);
+    setNetworkFunctionTranslateY(0);
+    setNetworkFunctionTranslateX(0);
+    setClickCounter(0);
+    currentYStepRef.current = 0;
+    currentXStepRef.current = 0;
+    setIsLocalMoveAnimationOn(true);
+    setIsNetworkMoveAnimationOn(true);
+    setHasExited(false);
+  };
 
   const iconButtonHoverElementClassNameProp = {
     hoverElementClassName:
@@ -245,6 +260,8 @@ export default function EdgeFunctionGame({
 
   return (
     <div className="flex h-full flex-col">
+      {hasExited && <VictoryOverlay onRestartGame={handleRestartGame} />}
+
       <SettingsBar
         isRaw={isRaw}
         className="my-5"
