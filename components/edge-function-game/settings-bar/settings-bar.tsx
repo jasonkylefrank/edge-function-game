@@ -32,13 +32,10 @@ const SettingsBar: FC<SettingsBarProps> = ({
   isNetworkMoveAnimationOn,
   onIsNetworkMoveAnimationOnChange,
 }) => {
-  const [selectedNetworkIndex, setSelectedNetworkIndex] = useState(0);
-
   function handleNetworkItemClick(
     newSelectedIndex: number,
     selectedNetwork: NetworkType
   ) {
-    setSelectedNetworkIndex(newSelectedIndex);
     onSelectedNetworkChange(selectedNetwork);
   }
 
@@ -72,7 +69,7 @@ const SettingsBar: FC<SettingsBarProps> = ({
       <span className={`flex flex-col place-items-center ${isRaw && "px-4"}`}>
         <ToggleGroup
           className="font-mono text-sm"
-          selectedIndex={selectedNetworkIndex}
+          selectedIndex={selectedNetwork}
           transitionDuration={toggleGroupTransitionDuration}
           items={[
             {
