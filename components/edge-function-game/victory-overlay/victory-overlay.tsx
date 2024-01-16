@@ -280,7 +280,7 @@ export default function VictoryOverlay({
           <motion.a
             variants={restartLinkVariants}
             onClick={handleRestartGameClick}
-            className="cursor-pointer text-white"
+            className="cursor-pointer text-white opacity-0"
           >
             {"restart game"}
           </motion.a>
@@ -318,7 +318,7 @@ export default function VictoryOverlay({
 
         <motion.div
           variants={otherElementsVariants}
-          className="max-w-xl text-base"
+          className="max-w-xl text-base opacity-0"
         >
           <div className="mt-8 grid w-full grid-cols-[1fr_auto_1fr] place-items-center gap-6">
             <hr className={`${statsHeaderSideBorderClassNames}`} />
