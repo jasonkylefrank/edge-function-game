@@ -29,6 +29,11 @@ export enum NetworkType {
   VercelServerlessAustralia = 1,
 }
 
+export interface NetworkLatency {
+  latency: number;
+  networkType: NetworkType;
+}
+
 export const gameTokenColorClassNames = {
   local: "text-[#ffff3d]",
   network: "text-[#4ddeff]",
@@ -103,13 +108,15 @@ export default function EdgeFunctionGame({
   const stepsToExit = 10;
   const currentYStepRef = useRef<number>(0); // The game token will "exit" the board once (abs(currentYStepRef.current) > stepsToExit)
   const currentXStepRef = useRef<number>(0);
-  const [hasExited, setHasExited] = useState<boolean>(false);
 
   const [isLocalMoveAnimationOn, setIsLocalMoveAnimationOn] = useState(true);
   const [isNetworkMoveAnimationOn, setIsNetworkMoveAnimationOn] =
     useState(true);
 
-  const handleRestartGame = () => {
+  const networkLatenciesRef = useRef<NetworkLatency[]>([]);
+  const [hasExited, setHasExited] = useState<boolean>(false);
+
+  const handleRestartGame = useCallback(() => {
     setSelectedNetwork(NetworkType.VercelEdge);
     setLocalTranslateY(0);
     setLocalTranslateX(0);
@@ -120,8 +127,22 @@ export default function EdgeFunctionGame({
     currentXStepRef.current = 0;
     setIsLocalMoveAnimationOn(true);
     setIsNetworkMoveAnimationOn(true);
+    networkLatenciesRef.current = [];
     setHasExited(false);
-  };
+  }, [
+    setSelectedNetwork,
+    setLocalTranslateY,
+    setLocalTranslateX,
+    setNetworkFunctionTranslateY,
+    setNetworkFunctionTranslateX,
+    setClickCounter,
+    currentYStepRef,
+    currentXStepRef,
+    setIsLocalMoveAnimationOn,
+    setIsNetworkMoveAnimationOn,
+    networkLatenciesRef,
+    setHasExited,
+  ]);
 
   const iconButtonHoverElementClassNameProp = {
     hoverElementClassName:
@@ -162,14 +183,19 @@ export default function EdgeFunctionGame({
         //const serverVal = await serverActionHandler(value);
 
         const networkFunctionReceivedTime = new Date().getTime();
+        const latency = networkFunctionReceivedTime - networkFunctionSentTime;
 
         console.log(
           `${xOrY} value received back from ${
             selectedNetwork === NetworkType.VercelEdge ? "EDGE" : "SERVERLESS"
-          } function.  Latency: ${
-            networkFunctionReceivedTime - networkFunctionSentTime
-          }ms`
+          } function.  Latency: ${latency}ms`
         );
+
+        networkLatenciesRef.current.push({
+          latency,
+          networkType: selectedNetwork,
+        });
+
         switch (xOrY) {
           case "X":
             setNetworkFunctionTranslateX(serverVal);
@@ -260,7 +286,12 @@ export default function EdgeFunctionGame({
 
   return (
     <div className="flex h-full flex-col">
-      {hasExited && <VictoryOverlay onRestartGame={handleRestartGame} />}
+      {hasExited && (
+        <VictoryOverlay
+          onRestartGame={handleRestartGame}
+          networkLatencies={networkLatenciesRef.current}
+        />
+      )}
 
       <SettingsBar
         isRaw={isRaw}
