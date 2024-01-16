@@ -114,7 +114,7 @@ export default function EdgeFunctionGame({
     useState(true);
 
   const networkLatenciesRef = useRef<NetworkLatency[]>([]);
-  const [hasExited, setHasExited] = useState<boolean>(true);
+  const [hasExited, setHasExited] = useState<boolean>(false);
 
   const handleRestartGame = useCallback(() => {
     setSelectedNetwork(NetworkType.VercelEdge);
