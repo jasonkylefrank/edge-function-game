@@ -5,7 +5,6 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "dev:xata-workers": "concurrently \"next dev\" \"xata workers watch\"",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
@@ -15,11 +14,10 @@
     "@mdx-js/react": "^2.2.1",
     "@next/mdx": "^13.1.0",
     "@tailwindcss/typography": "^0.5.8",
-    "@types/node": "18.11.17",
+    "@types/node": "24.3.0",
     "@types/react": "18.0.26",
     "@types/react-dom": "18.0.9",
     "@vercel/analytics": "^0.1.11",
-    "@xata.io/client": "^0.22.4",
     "classnames": "^2.3.2",
     "eslint": "8.30.0",
     "eslint-config-next": "13.1.0",
@@ -38,5 +36,6 @@
     "prettier": "^2.8.1",
     "prettier-plugin-tailwindcss": "^0.2.1",
     "tailwindcss": "^3.2.4"
-  }
+  },
+  "packageManager": "pnpm@10.15.0+sha512.486ebc259d3e999a4e8691ce03b5cac4a71cbeca39372a9b762cb500cfdf0873e2cb16abe3d951b1ee2cf012503f027b98b6584e4df22524e0c7450d9ec7aa7b"
 }
